@@ -92,8 +92,9 @@ function applyRoleVisibility() {
   });
   document.getElementById("user-fullname").textContent = state.currentUser ? state.currentUser.full_name : "—";
   document.getElementById("branch-select-row").style.display = "";
-  // کارمند عادی تب پیش‌فرضش «داشبورد» می‌ماند؛ تب «شیفت‌های من» فقط برای غیرمدیر معنی دارد.
+  // کارمند عادی فقط تب "شیفت‌های من" را می‌بیند؛ مدیر تمام تب‌ها را می‌بیند
   document.querySelector('[data-tab="my-shifts"]').style.display = admin ? "none" : "";
+  document.querySelector('[data-tab="reports"]').style.display = admin ? "" : "none";
 }
 
 async function tryResumeSession() {
@@ -176,7 +177,7 @@ function syncJalaliToday(jy, jm, jd) {
 }
 
 // ---------------------------------------------------------
-// شعبه‌ها
+// شعب��‌ها
 // ---------------------------------------------------------
 async function loadBranches() {
   try {
@@ -536,7 +537,7 @@ async function loadRecentShifts() {
       <div class="list-item">
         <div class="li-main">
           <span class="li-name">${s.employee_name} ${s.manual ? '<span class="badge badge-manual">دستی</span>' : '<span class="badge badge-live">زنده</span>'} ${s.open ? '<span class="badge badge-open">باز</span>' : ''}</span>
-          <span class="li-meta">شعبه: ${s.branch_name || "—"} · ورود: ${s.check_in_jalali} ${s.check_out_jalali ? "· خروج: " + s.check_out_jalali : ""} · مدت: ${faDigits(s.hours.toFixed(1))} ساعت ${s.note ? "· " + s.note : ""}</span>
+          <span class="li-meta">شعبه: ${s.branch_name || "—"} · ورود: ${s.check_in_jalali} ${s.check_out_jalali ? "· خروج: " + s.check_out_jalali : ""} · مدت: ${faDigits(s.hours.toFixed(1))} ساعت</span>
         </div>
         <div class="li-actions">
           <button class="btn btn-outline btn-sm" onclick="deleteShift(${s.id})">حذف</button>
