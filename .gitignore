@@ -1,0 +1,93 @@
+# ==========================
+# Binaries
+# ==========================
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Build output
+/bin/
+/build/
+/dist/
+
+# Go workspace
+go.work
+go.work.sum
+
+# Vendor (اگر از vendor استفاده نمی‌کنی)
+# /vendor/
+
+# Coverage
+*.cover
+coverage.out
+coverage.html
+
+# GoLand
+.idea/
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# SQLite Database
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Temporary files
+tmp/
+temp/
+
+# Cache
+.cache/
+
+# Generated files
+*.gen.go
+
+# Air (Live Reload)
+.air.toml
+
+# Delve debugger
+__debug_bin
+
+# Profiling
+cpu.prof
+mem.prof
+
+# Test cache
+*.test
+
+# Node (اگر فرانت‌اند داری)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+
+# Archives
+*.zip
+*.tar
+*.gz
+*.rar

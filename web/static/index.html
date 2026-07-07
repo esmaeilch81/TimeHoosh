@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سامانه ثبت ساعت کاری پرسنل</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<!-- ================= صفحه ورود ================= -->
+<div id="login-screen" class="login-screen">
+  <div class="login-card">
+    <div class="brand" style="justify-content:center; margin-bottom: 18px;">
+      <span class="brand-icon">⏱️</span>
+      <div>
+        <h1>سامانه ثبت ساعت کاری</h1>
+      </div>
+    </div>
+    <form id="login-form">
+      <div class="form-row">
+        <label>نام کاربری</label>
+        <input type="text" id="login-username" autocomplete="username" required>
+      </div>
+      <div class="form-row">
+        <label>رمز عبور</label>
+        <input type="password" id="login-password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:10px;">ورود</button>
+      <p id="login-error" class="hint" style="color:#d33; display:none; margin-top:10px;"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ================= برنامه اصلی (بعد از ورود) ================= -->
+<div id="app-root" style="display:none;">
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-icon">⏱️</span>
+    <div>
+      <h1>سامانه ثبت ساعت کاری</h1>
+      <p id="today-date" class="subtitle">—</p>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="dashboard">داشبورد</button>
+    <button class="tab-btn admin-only" data-tab="personnel">پرسنل</button>
+    <button class="tab-btn admin-only" data-tab="branches">شعبه‌ها</button>
+    <button class="tab-btn admin-only" data-tab="manual">ثبت دستی</button>
+    <button class="tab-btn admin-only" data-tab="reports">گزارش‌ها</button>
+    <button class="tab-btn" data-tab="my-shifts">شیفت‌های من</button>
+  </nav>
+  <div class="user-box">
+    <span id="user-fullname" class="user-name">—</span>
+    <button id="logout-btn" class="btn btn-ghost">خروج</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ================= داشبورد ================= -->
+  <section id="tab-dashboard" class="tab-content active">
+    <div class="grid-2">
+      <div class="card">
+        <h2>ثبت ورود / خروج</h2>
+        <p class="hint" id="checkin-hint">شعبه‌ات رو انتخاب کن و بزن «ورود». وقتی کارت تموم شد، «خروج» رو بزن.</p>
+        <div class="form-row" id="branch-select-row">
+          <label>شعبه</label>
+          <select id="checkin-branch"></select>
+        </div>
+        <div id="checkin-list" class="checkin-grid"></div>
+      </div>
+
+      <div class="card admin-only">
+        <h2>آنلاین‌های الان <span id="open-count" class="badge badge-warn">۰</span></h2>
+        <p class="hint">افرادی که ورود زدن، در کدام شعبه و از چه ساعتی.</p>
+        <div id="open-shifts-list" class="list"></div>
+      </div>
+    </div>
+
+    <div class="card admin-only">
+      <h2>خلاصه ساعت کارکرد این ماه — <span id="dash-month"></span></h2>
+      <div id="month-summary" class="summary-grid"></div>
+    </div>
+  </section>
+
+  <!-- ================= پرسنل (فقط مدیر) ================= -->
+  <section id="tab-personnel" class="tab-content">
+    <div class="card">
+      <h2>افزودن نفر جدید</h2>
+      <form id="add-employee-form" class="inline-form">
+        <input type="text" id="emp-first" placeholder="نام" required>
+        <input type="text" id="emp-last" placeholder="نام خانوادگی">
+        <button type="submit" class="btn btn-primary">افزودن</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>لیست پرسنل</h2>
+      <div class="table-wrap">
+        <table class="data-table" id="employees-table">
+          <thead><tr><th>#</th><th>نام و نام‌خانوادگی</th><th>وضعیت</th><th>نام کاربری</th><th>نقش</th><th>عملیات</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" id="credentials-card" style="display:none;">
+      <h2>تنظیم حساب کاربری برای <span id="cred-emp-name"></span></h2>
+      <form id="credentials-form" class="inline-form">
+        <input type="hidden" id="cred-employee-id">
+        <input type="text" id="cred-username" placeholder="نام کاربری" required>
+        <input type="password" id="cred-password" placeholder="رمز عبور (حداقل ۶ کاراکتر)" required>
+        <select id="cred-role">
+          <option value="employee">کارمند</option>
+          <option value="admin">مدیر</option>
+        </select>
+        <button type="submit" class="btn btn-primary">ذخیره</button>
+        <button type="button" id="cred-cancel" class="btn btn-ghost">انصراف</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ================= شعبه‌ها (فقط مدیر) ================= -->
+  <section id="tab-branches" class="tab-content">
+    <div class="card">
+      <h2>افزودن شعبه جدید</h2>
+      <form id="add-branch-form" class="inline-form">
+        <input type="text" id="branch-name" placeholder="نام شعبه (مثلاً: شعبه مرکزی)" required>
+        <button type="submit" class="btn btn-primary">افزودن</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>لیست شعبه‌ها</h2>
+      <div class="table-wrap">
+        <table class="data-table" id="branches-table">
+          <thead><tr><th>#</th><th>نام شعبه</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ثبت دستی (فقط مدیر) ================= -->
+  <section id="tab-manual" class="tab-content">
+    <div class="card">
+      <h2>ثبت دستی / با تاخیر</h2>
+      <p class="hint">اگه فردی یادش رفت لحظه ورودش رو ثبت کنه، از همینجا می‌تونی به‌صورت دستی وارد کنی.</p>
+      <form id="manual-form" class="manual-form">
+        <div class="form-row">
+          <label>فرد</label>
+          <select id="manual-employee" required></select>
+        </div>
+
+        <div class="form-row">
+          <label>شعبه</label>
+          <select id="manual-branch" required></select>
+        </div>
+
+        <fieldset class="date-fieldset">
+          <legend>زمان ورود</legend>
+          <div class="date-row">
+            <select id="in-year"></select>
+            <select id="in-month"></select>
+            <select id="in-day"></select>
+            <span class="sep">ساعت</span>
+            <select id="in-hour"></select>
+            <span>:</span>
+            <select id="in-minute"></select>
+          </div>
+        </fieldset>
+
+        <div class="form-row checkbox-row">
+          <label><input type="checkbox" id="has-out"> زمان خروج هم مشخص است</label>
+        </div>
+
+        <fieldset class="date-fieldset" id="out-fieldset" style="display:none">
+          <legend>زمان خروج</legend>
+          <div class="date-row">
+            <select id="out-year"></select>
+            <select id="out-month"></select>
+            <select id="out-day"></select>
+            <span class="sep">ساعت</span>
+            <select id="out-hour"></select>
+            <span>:</span>
+            <select id="out-minute"></select>
+          </div>
+        </fieldset>
+
+        <div class="form-row">
+          <label>توضیح (اختیاری)</label>
+          <input type="text" id="manual-note" placeholder="مثلاً: یادم رفت بزنم / مشکل نت">
+        </div>
+
+        <button type="submit" class="btn btn-primary">ثبت شیفت دستی</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>شیفت‌های اخیر (قابل ویرایش/حذف)</h2>
+      <div id="recent-shifts" class="list"></div>
+    </div>
+  </section>
+
+  <!-- ================= گزارش‌ها (فقط مدیر) ================= -->
+  <section id="tab-reports" class="tab-content">
+    <div class="card">
+      <h2>خروجی اکسل</h2>
+      <form id="export-form" class="inline-form">
+        <select id="export-range">
+          <option value="this_month">این ماه</option>
+          <option value="last_month">ماه قبل</option>
+          <option value="custom">بازه دلخواه</option>
+          <option value="all">کل تاریخچه</option>
+        </select>
+        <select id="export-employee">
+          <option value="0">همه پرسنل</option>
+        </select>
+        <button type="submit" class="btn btn-success">دانلود فایل اکسل 📊</button>
+      </form>
+      <div id="custom-range" class="date-row" style="display:none; margin-top:14px;">
+        <span>از</span>
+        <select id="cr-from-year"></select>
+        <select id="cr-from-month"></select>
+        <select id="cr-from-day"></select>
+        <span>تا</span>
+        <select id="cr-to-year"></select>
+        <select id="cr-to-month"></select>
+        <select id="cr-to-day"></select>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>پیش‌نمایش شیفت‌ها</h2>
+      <div class="table-wrap">
+        <table class="data-table" id="report-table">
+          <thead>
+            <tr><th>نام</th><th>شعبه</th><th>تاریخ ورود</th><th>تاریخ خروج</th><th>مدت (ساعت)</th><th>نوع ثبت</th><th>توضیح</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="report-pagination" class="pagination"></div>
+    </div>
+  </section>
+
+  <!-- ================= شیفت‌های من (برای کارمند عادی) ================= -->
+  <section id="tab-my-shifts" class="tab-content">
+    <div class="card">
+      <h2>شیفت‌های من</h2>
+      <div class="table-wrap">
+        <table class="data-table" id="my-shifts-table">
+          <thead>
+            <tr><th>شعبه</th><th>تاریخ ورود</th><th>تاریخ خروج</th><th>مدت (ساعت)</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>
