@@ -52,7 +52,7 @@
     <button class="tab-btn admin-only" data-tab="personnel">پرسنل</button>
     <button class="tab-btn admin-only" data-tab="branches">شعبه‌ها</button>
     <button class="tab-btn admin-only" data-tab="manual">ثبت دستی</button>
-    <button class="tab-btn admin-only" data-tab="reports">گزارش‌ها</button>
+    <button class="tab-btn" data-tab="reports">گزارش‌ها</button>
     <button class="tab-btn" data-tab="my-shifts">شیفت‌های من</button>
   </nav>
   <div class="user-box">
@@ -208,7 +208,7 @@
     </div>
   </section>
 
-  <!-- ================= گزارش‌ها (فقط مدیر) ================= -->
+  <!-- ================= گزارش‌ها (برای همه) ================= -->
   <section id="tab-reports" class="tab-content">
     <div class="card">
       <h2>خروجی اکسل</h2>
@@ -219,7 +219,7 @@
           <option value="custom">بازه دلخواه</option>
           <option value="all">کل تاریخچه</option>
         </select>
-        <select id="export-employee">
+        <select id="export-employee" style="display:none;">
           <option value="0">همه پرسنل</option>
         </select>
         <button type="submit" class="btn btn-success">دانلود فایل اکسل 📊</button>
@@ -241,7 +241,7 @@
       <div class="table-wrap">
         <table class="data-table" id="report-table">
           <thead>
-            <tr><th>نام</th><th>شعبه</th><th>تاریخ ورود</th><th>تاریخ خروج</th><th>مدت (ساعت)</th><th>نوع ثبت</th><th>توضیح</th></tr>
+            <tr><th id="report-header-name">نام</th><th>شعبه</th><th>تاریخ ورود</th><th>تاریخ خروج</th><th>مدت (ساعت)</th><th>نوع ثبت</th><th>توضیح</th></tr>
           </thead>
           <tbody></tbody>
         </table>
