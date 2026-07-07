@@ -38,7 +38,7 @@ func main() {
 	backupDir := filepath.Join(exeDir, "data", "backups")
 
 	// ---------- پرچم‌های خط فرمان برای راه‌اندازی اولیه (bootstrap) ----------
-	bootstrapUser := flag.String("bootstrap-admin-username", "", "نام کاربری مدیر اولیه (فقط برای راه‌اندازی اول سیستم)")
+	bootstrapUser := flag.String("bootstrap-admin-username", "", "نام کارب��ی مدیر اولیه (فقط برای راه‌اندازی اول سیستم)")
 	bootstrapPass := flag.String("bootstrap-admin-password", "", "رمز عبور مدیر اولیه")
 	bootstrapFirst := flag.String("bootstrap-admin-firstname", "مدیر", "نام مدیر اولیه")
 	bootstrapLast := flag.String("bootstrap-admin-lastname", "", "نام خانوادگی مدیر اولیه")
@@ -232,6 +232,11 @@ func currentUser(r *http.Request) (models.User, bool) {
 	if !ok {
 		return models.User{}, false
 	}
+	// بررسی کنید که کارمند فعال است
+	emp, ok := db.GetEmployee(user.EmployeeID)
+	if !ok || !emp.Active {
+		return models.User{}, false
+	}
 	return user, true
 }
 
@@ -279,6 +284,12 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	user, ok := db.GetUserByUsername(body.Username)
 	if !ok {
 		writeError(w, 401, "نام کاربری یا رمز عبور نادرست است")
+		return
+	}
+	// بررسی کنید که کارمند فعال است
+	emp, ok := db.GetEmployee(user.EmployeeID)
+	if !ok || !emp.Active {
+		writeError(w, 401, "این کارمند غیرفعال شده است")
 		return
 	}
 	if bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(body.Password)) != nil {
@@ -675,7 +686,7 @@ func handleDeleteShift(w http.ResponseWriter, r *http.Request, _ models.User) {
 // ---------- شیفت‌ها و داشبورد ----------
 
 // handleShifts: کارمند عادی فقط شیفت‌های خودش را می‌بیند (حتی اگر employee_id دیگری بفرستد،
-// نادیده گرفته می‌شود)؛ مدیر می‌تواند با employee_id=0 همه را ببیند یا فیلتر کند.
+// نادیده گرف��ه می‌شود)؛ مدیر می‌تواند با employee_id=0 همه را ببیند یا فیلتر کند.
 func handleShifts(w http.ResponseWriter, r *http.Request, user models.User) {
 	q := r.URL.Query()
 	empID, _ := strconv.Atoi(q.Get("employee_id"))
